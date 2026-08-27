@@ -1,6 +1,6 @@
-import { useSignIn, useSignUp } from "@clerk/expo";
+import { useAuth, useSignIn, useSignUp } from "@clerk/expo";
 import { Href, useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, TextInput, Button } from "react-native";
 import ThemedText from "../components/themed-text";
 
@@ -14,11 +14,18 @@ export default function SignInScreen() {
     const { signUp, errors: signUpErrors, fetchStatus: signUpFetchStatus } = useSignUp();
     const [code, setCode] = useState("");
     const [showEmailCode, setShowEmailCode] = useState(false);
+    const { isLoaded, isSignedIn } = useAuth();
 
     const isFetching = signUpFetchStatus === "fetching";
 
+    useEffect(() => {
+            if (isLoaded && isSignedIn) {
+                console.log("state changed")
+                router.replace("/(home)");
+            }
+        }, [isLoaded, isSignedIn]);
+
     const onSignup = async () => {
-        console.log("Full Name:", fullName);
         if (fullName.trim() === "") {
             setErrorMessage("Full name is required.");
             return;
@@ -33,7 +40,7 @@ export default function SignInScreen() {
                 lastName: fullName.split(" ")[1] || "",
             });
             if (error) {
-                // console.log("Sign up after identifier not found:", JSON.stringify(error, null, 2));
+                setErrorMessage(error.message || "Sign up failed.");
                 return;
             }
             await signUp.verifications.sendEmailCode();
@@ -54,8 +61,10 @@ export default function SignInScreen() {
                 missingFields: signUp.missingFields,
             });
             return;
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error during sign-up:", error);
+            const clerkError = error?.errors?.[0]?.longMessage || error?.errors?.[0]?.message;
+        setErrorMessage(clerkError || "That email is already taken or invalid.");
         }
 
     };
@@ -105,10 +114,15 @@ export default function SignInScreen() {
         </View>
       )
     }
+    useEffect(() => {
+        if (errorMessage) {
+            console.log(errorMessage);
+        }
+    }, [errorMessage]);
 
     return (
         <View className="flex-1 justify-center items-start gap-6">
-            <Text className="text-red-600">{errorMessage}</Text>
+            {/* <Text className="text-red-600">{errorMessage}</Text> */}
             <View className="w-full px-4">
                 <Text className="text-3xl px-4">Sign Up</Text>
                 <Text className="text-lg px-4">Join Now</Text>

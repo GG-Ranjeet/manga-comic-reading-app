@@ -1,18 +1,24 @@
 import { useAuth, useClerk, useSignIn } from "@clerk/expo";
 import { Href, router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, TextInput, Button } from "react-native";
 import ThemedText from "../components/themed-text";
 
 export default function SignInScreen() {
     const { signIn, errors: signInError } = useSignIn();
     const { setActive } = useClerk();
-    const { isLoaded } = useAuth();
+    const { isLoaded, isSignedIn } = useAuth();
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
+    useEffect(() => {
+        if (isLoaded && isSignedIn) {
+            router.replace("/(home)");
+        }
+    }, [isLoaded, isSignedIn]);
+    
     const navigateAfterAuth = async ({
         session,
         decorateUrl,
@@ -41,7 +47,7 @@ export default function SignInScreen() {
                 password,
             });
             if (error) {
-                console.error("Error signing in:", error);
+                console.log("Error signing in:", error.message);
                 setErrorMessage(error.message);
             }
 
