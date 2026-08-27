@@ -1,12 +1,14 @@
 import { useAuth, useClerk, useSignIn } from "@clerk/expo";
 import { Href, router } from "expo-router";
 import { useState } from "react";
-import { View, Text } from "react-native";
+import { View, Text, TextInput, Button } from "react-native";
+import ThemedText from "../components/themed-text";
 
 export default function SignInScreen() {
-    const { signIn, errors } = useSignIn();
+    const { signIn, errors: signInError } = useSignIn();
     const { setActive } = useClerk();
     const { isLoaded } = useAuth();
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -40,6 +42,7 @@ export default function SignInScreen() {
             });
             if (error) {
                 console.error("Error signing in:", error);
+                setErrorMessage(error.message);
             }
 
             if (signIn.status === "complete") {
@@ -54,8 +57,25 @@ export default function SignInScreen() {
         }
     };
     return (
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-            <Text>Sign In</Text>
+        <View className="flex-1 justify-center items-center gap-2">
+            <Text className="text-3xl px-4">Sign In</Text>
+            <Text className="text-lg px-4">Welcome Back</Text>
+            <View className="w-3/4 px-4">
+                {/* <Text className="text-red-600">{errorMessage}</Text> */}
+                <Text className="text-md font-medium">Email</Text>
+                <TextInput autoCapitalize="none" value={email} placeholder="Email..." onChangeText={setEmail} />
+                {signInError.fields?.identifier ? <ThemedText>{signInError.fields.identifier.message}</ThemedText> : null}
+                <Text className="text-md font-medium">Password</Text>
+                <TextInput value={password} placeholder="Password..." secureTextEntry onChangeText={setPassword} />
+                {signInError.fields?.password ? <ThemedText>{signInError.fields.password.message}</ThemedText> : null}
+                <Button title="Sign In" onPress={onSignIn} />
+            </View>
+            <Text className="text-md px-4">
+                Don't have an account?{" "}
+                <Text className="text-blue-600" onPress={() => router.push("/sign-up")}>
+                    Sign Up
+                </Text>
+            </Text>
         </View>
     );
 }
