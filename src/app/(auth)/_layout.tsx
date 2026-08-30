@@ -6,7 +6,6 @@ export default function AuthLayout() {
     <Stack screenOptions={{ headerShown: true }} initialRouteName="sign-in">
       <Stack.Screen name="sign-in" options={{ title: 'Sign In', headerShown:true }} />
       <Stack.Screen name="sign-up" options={{ title: 'Sign Up' }} />
-      <Stack.Screen name="index" options={{ title: 'Home' }} />
     </Stack>
   );
 }

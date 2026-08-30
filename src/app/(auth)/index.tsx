@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View, Text, Button } from "react-native";
 import { useAuth, useClerk, useSignIn } from "@clerk/expo";
 import { router } from "expo-router";
 import { useEffect } from "react";
@@ -19,8 +19,13 @@ export default function SignInScreen() {
         }
     }, [isSignedIn, userId, sessionId]);
     return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text>Sign gawaw</Text>  
-    </View>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+            <Button
+                title="click"
+                onPress={() => {
+                    router.replace("/(home)");
+                }}
+            />
+        </View>
     );
 }

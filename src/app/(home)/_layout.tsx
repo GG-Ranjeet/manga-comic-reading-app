@@ -14,7 +14,7 @@ export default function AppLayout() {
             screenOptions={{
                 headerShown: true,
                 tabBarActiveTintColor: "#2563eb", // Primary color (e.g., Tailwind blue-600)
-                header: () => <CustomHeader title="Manga " onProfilePress={() => router.push("/(home)/profile")} />,
+                header: () => <CustomHeader title="Manga Reader" onProfilePress={() => router.push("/(home)/profile")} />,
             }}
         >
             <Tabs.Screen
