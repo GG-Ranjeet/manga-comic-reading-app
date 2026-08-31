@@ -4,14 +4,15 @@ import { View, Image, Text, ScrollView, TouchableOpacity, Pressable } from "reac
 import * as DocumentPicker from "expo-document-picker";
 import { Directory, Paths } from "expo-file-system";
 // import { unzip } from "../../utils/zipper";
-import { unzip } from 'react-native-zip-archive';
+import { unzip } from "react-native-zip-archive";
 import { isDirectoryExists, deleteDirectory, hell, deleteFile } from "@/utils/zipper";
+import { saveManga } from "@/db/database";
 
 const MANGA_COLLECTION = [
     {
         id: "1",
         title: "Way of the Blade",
-        image: "file:///data/user/0/com.ggranjeet.secondproject/files/manga_collection/Otaku Tomodachi to Mindblowing/1.jpg",
+        image: "file:///data/user/0/com.ggranjeet.secondproject/files/manga-collection/Otaku Tomodachi to Mindblowing/1.jpg",
         progress: 0.9,
     },
     {
@@ -96,11 +97,25 @@ export default function LibraryScreen() {
 
             // 3. Unzip using the local temp path
             const path = await unzip(tempZipPath, targetPath);
-            
+            const candidateExtensions = ["jpg", "png", "jpeg", "webp"];
+
+            let coverImagePath: string = '';
+            let detectedExtension: string = '';
+
+            for (const ext of candidateExtensions) {
+                const candidatePath = `${targetPath}/1.${ext}`;
+                const info = await hell.getInfoAsync(candidatePath);
+
+                if (info.exists) {
+                    coverImagePath = candidatePath;
+                    detectedExtension = ext;
+                    break; // Stop checking once found
+                }
+            }
+            saveManga(filename, path, coverImagePath, 0, detectedExtension);
             // console.log("Unzipped files saved to:", path);
 
             await deleteFile(tempZipPath);
-            
         } catch (error) {
             console.error("Failed to unzip file:", error);
         }
@@ -108,6 +123,7 @@ export default function LibraryScreen() {
         //     `Picked file: ${pickedFile.name}\nURI: ${pickedFile.uri}\nSize: ${pickedFile.size} bytes\nType: ${pickedFile.mimeType}\n\n Target directory: ${appDataFolder}`,
         // );
     };
+
     return (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
             <View className="flex-row justify-between px-5 pt-6 pb-4">
@@ -161,4 +177,3 @@ export default function LibraryScreen() {
         </ScrollView>
     );
 }
-

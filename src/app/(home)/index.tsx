@@ -1,3 +1,4 @@
+import { getAllManga, initDatabase } from "@/db/database";
 import { useAuth } from "@clerk/expo";
 import { router, Stack } from "expo-router";
 import { useEffect } from "react";
@@ -26,7 +27,19 @@ export default function AppLayout() {
             console.error("Error signing out:", error);
         }
     };
+    const initializeDatabase = async () => {
+        initDatabase();
+    }
+    const fetchAllManga = async () => {
+        const mangaList = getAllManga();
+        console.log("All Manga:", mangaList);
+    }
     return (
-        <View className="flex-1 w-4/5 justify-center items-center gap-2 ">{isLoaded && isSignedIn && <Button title="Sign Out" onPress={handleLogout} />}</View>
+        <View className="flex-1 w-4/5 justify-center items-center gap-2 ">
+            {isLoaded && isSignedIn && <Button title="Sign Out" onPress={handleLogout} />}
+        {/* <Button title="init database" onPress={() => initDatabase} /> */}
+        <Button title="Get all Manga" onPress={() => fetchAllManga()} />
+
+        </View>
     );
 }
