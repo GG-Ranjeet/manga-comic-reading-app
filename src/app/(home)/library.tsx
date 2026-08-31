@@ -9,7 +9,7 @@ const MANGA_COLLECTION = [
     {
         id: "1",
         title: "Way of the Blade",
-        image: "file:///data/user/0/host.exp.exponent/files/ExperienceData/%2540anonymous%252Ffirst-project-e5923fdc-2c06-4f9d-9390-391d073865f7/manga_collection/Otaku Tomodachi to Mindblowing/1.jpg",
+        image: "file:///data/user/0/com.ggranjeet.secondproject/files/manga_collection/Otaku Tomodachi to Mindblowing/1.jpg",
         progress: 0.9,
     },
     {
@@ -78,6 +78,7 @@ export default function LibraryScreen() {
 
         try {
             const path = await unzip(pickedFile.uri, filename);
+            console.log("Unzipped files saved to:", path);
             
         } catch (error) {
             console.error("Failed to unzip file:", error);

@@ -1,10 +1,19 @@
 import * as FileSystem from 'expo-file-system/legacy';
 import { unzipSync } from 'fflate';
-import 'react-native-get-random-values';
+// import 'react-native-get-random-values';
 
 const unzip = async (zipUri: string, folderName: string) => {
+
+  const fileName = 'temp_archive.zip';
+  const destinationUri = `${FileSystem.cacheDirectory}${fileName}`;
+
+  await FileSystem.copyAsync({
+      from: zipUri,
+      to: destinationUri,
+    });
+
   // 1. Read ZIP file as base64 string
-  const base64Data = await FileSystem.readAsStringAsync(zipUri, {
+  const base64Data = await FileSystem.readAsStringAsync(destinationUri, {
     encoding: FileSystem.EncodingType.Base64,
   });
 
@@ -17,6 +26,7 @@ const unzip = async (zipUri: string, folderName: string) => {
 
   // 3. Decompress files
   const unzippedFiles = unzipSync(bytes);
+
   const safeFolderName = folderName.replace(/[^a-zA-Z0-9_\- ]/g, "");
   const targetFolder = `${FileSystem.documentDirectory}manga_collection/${safeFolderName}/`;
   await FileSystem.makeDirectoryAsync(targetFolder, { intermediates: true });
@@ -43,6 +53,8 @@ const unzip = async (zipUri: string, folderName: string) => {
       { encoding: FileSystem.EncodingType.Base64 }
     );
   }
+
+  await FileSystem.deleteAsync(destinationUri, { idempotent: true });
 
   return targetFolder;
 };

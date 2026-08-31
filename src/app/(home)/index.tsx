@@ -12,7 +12,7 @@ export default function AppLayout() {
     }
     useEffect(() => {
         if (isLoaded && !isSignedIn) {
-            router.replace("/sign-in"); // Use replace to prevent stacking auth screens
+            router.replace("/(auth)/sign-in"); // Use replace to prevent stacking auth screens
         }
     }, [isLoaded, isSignedIn]);
     if (isLoaded && isSignedIn) {
