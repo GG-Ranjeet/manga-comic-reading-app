@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "first-project",
-    "slug": "first-project",
+    "name": "second-project",
+    "slug": "second-project",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "firstproject",
+    "scheme": "secondproject",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"
@@ -17,8 +17,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "package": "com.ranjeet.firstproject",
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.ggranjeet.secondproject"
     },
     "web": {
       "bundler": "metro",
@@ -35,12 +35,21 @@
           "imageWidth": 76
         }
       ],
+      "expo-sqlite",
       "@clerk/expo",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a968d47a-cbb3-4e67-b91a-465b4ffd6ee1"
+      }
+    },
+    "owner": "gg-ranjeet"
   }
 }
