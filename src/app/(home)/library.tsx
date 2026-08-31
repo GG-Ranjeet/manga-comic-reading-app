@@ -1,61 +1,17 @@
 import { Feather } from "@expo/vector-icons";
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import { View, Image, Text, ScrollView, TouchableOpacity, Pressable } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import { Directory, Paths } from "expo-file-system";
 // import { unzip } from "../../utils/zipper";
 import { unzip } from "react-native-zip-archive";
 import { isDirectoryExists, deleteDirectory, hell, deleteFile } from "@/utils/zipper";
-import { saveManga } from "@/db/database";
-
-const MANGA_COLLECTION = [
-    {
-        id: "1",
-        title: "Way of the Blade",
-        image: "file:///data/user/0/com.ggranjeet.secondproject/files/manga-collection/Otaku Tomodachi to Mindblowing/1.jpg",
-        progress: 0.9,
-    },
-    {
-        id: "2",
-        title: "Concrete Labyrinth",
-        image: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=500&q=80",
-        progress: 0.9,
-    },
-    {
-        id: "3",
-        title: "Neon Ghost",
-        image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&q=80",
-        progress: 0.3,
-    },
-    {
-        id: "4",
-        title: "Silent Peak",
-        image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&q=80",
-        progress: 0.45,
-    },
-    {
-        id: "5",
-        title: "Concrete Labyrinth",
-        image: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=500&q=80",
-        progress: 0.9,
-    },
-    {
-        id: "6",
-        title: "Neon Ghost",
-        image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&q=80",
-        progress: 0.3,
-    },
-    {
-        id: "7",
-        title: "Silent Peak",
-        image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&q=80",
-        progress: 0.45,
-    },
-];
+import { getAllManga, saveManga } from "@/db/database";
 
 export default function LibraryScreen() {
     const [activeTab, setActiveTab] = useState("RECENT");
     const [importing, setImporting] = useState(false);
+    const [mangaList, setMangaList] = useState(getAllManga());
 
     const handleUpload = async () => {
         setImporting(true);
@@ -124,6 +80,17 @@ export default function LibraryScreen() {
         // );
     };
 
+    useEffect(() => {
+        try {
+            setMangaList(getAllManga());
+            console.log("All Manga:", mangaList);
+
+        }
+        catch (error) {
+            console.error("Error fetching manga:", error);
+        }
+    }, []);
+
     return (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
             <View className="flex-row justify-between px-5 pt-6 pb-4">
@@ -151,7 +118,7 @@ export default function LibraryScreen() {
             </View>
 
             <View className="flex-row flex-wrap px-4 justify-between">
-                {MANGA_COLLECTION.map((item) => (
+                {mangaList.map((item) => (
                     <View key={item.id} className="w-[48%] mb-6">
                         <Pressable
                             onPress={() => {
