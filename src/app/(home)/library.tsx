@@ -3,7 +3,9 @@ import { useState } from "react";
 import { View, Image, Text, ScrollView, TouchableOpacity, Pressable } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import { Directory, Paths } from "expo-file-system";
-import { unzip } from "../../utils/zipper";
+// import { unzip } from "../../utils/zipper";
+import { unzip } from 'react-native-zip-archive';
+import { isDirectoryExists, deleteDirectory, hell, deleteFile } from "@/utils/zipper";
 
 const MANGA_COLLECTION = [
     {
@@ -76,9 +78,28 @@ export default function LibraryScreen() {
 
         const filename = pickedFile.name.replace(/\.[^/.]+$/, "");
 
+        const targetPath = `${appDataFolder.uri}${filename}`;
         try {
-            const path = await unzip(pickedFile.uri, filename);
-            console.log("Unzipped files saved to:", path);
+            if (!appDataFolder.exists) {
+                appDataFolder.create();
+            }
+            if (await isDirectoryExists(targetPath)) {
+                await deleteDirectory(targetPath);
+            }
+
+            const tempZipPath = `${hell.cacheDirectory}temp_unzip_${Date.now()}.zip`;
+
+            await hell.copyAsync({
+                from: pickedFile.uri,
+                to: tempZipPath,
+            });
+
+            // 3. Unzip using the local temp path
+            const path = await unzip(tempZipPath, targetPath);
+            
+            // console.log("Unzipped files saved to:", path);
+
+            await deleteFile(tempZipPath);
             
         } catch (error) {
             console.error("Failed to unzip file:", error);
@@ -140,3 +161,4 @@ export default function LibraryScreen() {
         </ScrollView>
     );
 }
+

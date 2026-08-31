@@ -59,4 +59,49 @@ const unzip = async (zipUri: string, folderName: string) => {
   return targetFolder;
 };
 
-export { unzip };
+const isDirectoryExists = async (path: string): Promise<boolean> => {
+  try {
+    const info = await FileSystem.getInfoAsync(path);
+    return info.exists && info.isDirectory;
+  } catch (error) {
+    console.error(`Error checking directory existence for ${path}:`, error);
+    return false;
+  }
+};
+
+const deleteDirectory = async (path: string): Promise<void> => {
+  try {
+    if (await isDirectoryExists(path)) {
+      await FileSystem.deleteAsync(path, { idempotent: true });
+      console.log(`Deleted directory: ${path}`);
+    }
+  } catch (error) {
+    console.error(`Error deleting directory ${path}:`, error);
+  }
+};
+
+const clearCache = async (): Promise<void> => {
+  try {
+    const cacheDir = FileSystem.cacheDirectory;
+    if (cacheDir) {
+      await FileSystem.deleteAsync(cacheDir, { idempotent: true });
+      console.log(`Cleared cache directory: ${cacheDir}`);
+    }
+  } catch (error) {
+    console.error('Error clearing cache directory:', error);
+  }
+};
+
+const deleteFile = async (filePath: string): Promise<void> => {
+  try {
+    const fileInfo = await FileSystem.getInfoAsync(filePath);
+    if (fileInfo.exists && !fileInfo.isDirectory) {
+      await FileSystem.deleteAsync(filePath, { idempotent: true });
+      console.log(`Deleted file: ${filePath}`);
+    }
+  } catch (error) {
+    console.error(`Error deleting file ${filePath}:`, error);
+  }
+}
+
+export { FileSystem as hell, unzip, isDirectoryExists, deleteDirectory, clearCache, deleteFile };
