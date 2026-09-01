@@ -34,11 +34,17 @@ export default function AppLayout() {
         const mangaList = getAllManga();
         console.log("All Manga:", mangaList);
     }
+
+    const readButton = () => {
+        router.push({ pathname: "/(read)", params: { mangaId: "2" } });
+    }
+
     return (
         <View className="flex-1 w-4/5 justify-center items-center gap-2 ">
             {isLoaded && isSignedIn && <Button title="Sign Out" onPress={handleLogout} />}
         {/* <Button title="init database" onPress={() => initDatabase} /> */}
         <Button title="Get all Manga" onPress={() => fetchAllManga()} />
+        <Button title="Click to open read" onPress={() => readButton()} />
 
         </View>
     );

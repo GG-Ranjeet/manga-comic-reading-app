@@ -53,10 +53,11 @@ export default function LibraryScreen() {
 
             // 3. Unzip using the local temp path
             const path = await unzip(tempZipPath, targetPath);
+            const files = await hell.readDirectoryAsync(targetPath);
             const candidateExtensions = ["jpg", "png", "jpeg", "webp"];
 
-            let coverImagePath: string = '';
-            let detectedExtension: string = '';
+            let coverImagePath: string = "";
+            let detectedExtension: string = "";
 
             for (const ext of candidateExtensions) {
                 const candidatePath = `${targetPath}/1.${ext}`;
@@ -68,12 +69,28 @@ export default function LibraryScreen() {
                     break; // Stop checking once found
                 }
             }
-            saveManga(filename, path, coverImagePath, 0, detectedExtension);
-            // console.log("Unzipped files saved to:", path);
+            const pageNumbers = files
+                .map((filename) => {
+                    const match = filename.match(/^(\d+)\.(jpg|jpeg|png|webp)$/i);
 
-            await deleteFile(tempZipPath);
+                    if (!match) {
+                        return null;
+                    }
+
+                    return Number(match[1]);
+                })
+                .filter((num): num is number => num !== null);
+                
+            const pageCount = pageNumbers.length > 0 ? Math.max(...pageNumbers) : 0;
+
+            saveManga(filename, path, coverImagePath, 0, detectedExtension, pageCount);
+            // console.log("Unzipped files saved to:", path);
+                await deleteFile(tempZipPath);
         } catch (error) {
             console.error("Failed to unzip file:", error);
+        }
+        finally {
+            setImporting(false);
         }
         // alert(
         //     `Picked file: ${pickedFile.name}\nURI: ${pickedFile.uri}\nSize: ${pickedFile.size} bytes\nType: ${pickedFile.mimeType}\n\n Target directory: ${appDataFolder}`,
@@ -84,12 +101,10 @@ export default function LibraryScreen() {
         try {
             setMangaList(getAllManga());
             console.log("All Manga:", mangaList);
-
-        }
-        catch (error) {
+        } catch (error) {
             console.error("Error fetching manga:", error);
         }
-    }, []);
+    }, [activeTab]);
 
     return (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
