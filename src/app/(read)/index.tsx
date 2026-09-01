@@ -1,7 +1,7 @@
 import { getMangaById, Manga } from "@/db/database";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Button, Image, Text, View } from "react-native";
+import { ActivityIndicator, Button, Image, Pressable, Text, View } from "react-native";
 
 export default function ReadLayout() {
     const { mangaId } = useLocalSearchParams<{ mangaId: string }>();
@@ -11,6 +11,7 @@ export default function ReadLayout() {
     const [error, setError] = useState<string | null>(null);
     const [pageNumber, setPageNumber] = useState<number>(1);
     const [currentPageImage, setCurrentPageImage] = useState<string>("");
+    const [fullScreen, setFullScreen] = useState<boolean>(false);
 
     useEffect(() => {
         if (!mangaId) return;
@@ -62,26 +63,49 @@ export default function ReadLayout() {
     // encodeURI(`file://${manga.path}/${pageNumber}.webp`),
 
     if (manga) {
-        return (
-            <View className="flex-1 bg-black justify-center items-center">
-                <View className="w-4/5 h-1/2 bg-white rounded-lg shadow-lg justify-center items-center">
-                    <Image
-                        source={{
-                            uri: currentPageUri,
-                        }}
-                        className="w-full h-full"
-                    ></Image>
+        if (fullScreen) {
+            return (
+                <View className="flex-1 bg-black justify-center items-center">
+                    {/* Scaled image container */}
+                    <Image source={{ uri: currentPageUri }} className="flex-1 w-full" resizeMode="contain" />
+
+                    <View className="absolute justify-between inset-0 flex-row">
+                        {/* Left 50% - Previous Page */}
+                        <Pressable className="flex-1 bg-black/5" onPress={goToPreviousPage} />
+
+                        {/* Right 50% - Next Page */}
+                        <Pressable className="flex-1" onPress={goToNextPage} />
+                        <Pressable className="flex-1" onPress={goToNextPage} />
+                    </View>
+
+                    <View className="absolute top-16 left-8">
+                        <Button title="<back " onPress={() => setFullScreen(false)}></Button>
+                    </View>
                 </View>
-                <Text className="text-2xl font-bold text-center color-slate-300 mt-10">Read Manga of id {mangaId}</Text>
-                <View className="flex-row justify-around items-center w-4/5 mt-4">
-                    <Button title="<back " onPress={goToPreviousPage}></Button>
-                    <Text className="text-white text-lg font-bold">
-                        Page {pageNumber} of {totalPages}
-                    </Text>
-                    <Button title="Go >" onPress={goToNextPage}></Button>
+            );
+        } else {
+            return (
+                <View className="flex-1 bg-black justify-center items-center">
+                    <View className="w-4/5 h-1/2 bg-white rounded-lg shadow-lg justify-center items-center">
+                        <Image
+                            source={{
+                                uri: currentPageUri,
+                            }}
+                            className="w-full h-full"
+                        ></Image>
+                    </View>
+                    <Text className="text-2xl font-bold text-center color-slate-300 mt-10">Read Manga of id {mangaId}</Text>
+                    <View className="flex-row justify-around items-center w-4/5 mt-4">
+                        <Button title="<back " onPress={goToPreviousPage}></Button>
+                        <Text className="text-white text-lg font-bold">
+                            Page {pageNumber} of {totalPages}
+                        </Text>
+                        <Button title="Go >" onPress={goToNextPage}></Button>
+                    </View>
+                    <Button title="Go Fullscreen" onPress={() => setFullScreen(true)} />
                 </View>
-            </View>
-        );
+            );
+        }
     }
 
     return (

@@ -7,6 +7,7 @@ import { Directory, Paths } from "expo-file-system";
 import { unzip } from "react-native-zip-archive";
 import { isDirectoryExists, deleteDirectory, hell, deleteFile } from "@/utils/zipper";
 import { getAllManga, saveManga } from "@/db/database";
+import { router } from "expo-router";
 
 export default function LibraryScreen() {
     const [activeTab, setActiveTab] = useState("RECENT");
@@ -96,6 +97,11 @@ export default function LibraryScreen() {
         //     `Picked file: ${pickedFile.name}\nURI: ${pickedFile.uri}\nSize: ${pickedFile.size} bytes\nType: ${pickedFile.mimeType}\n\n Target directory: ${appDataFolder}`,
         // );
     };
+    
+    const handleMangaPress = (mangaId: number) => {
+        // Navigate to the read screen with the selected mangaId
+        router.push({ pathname: "/(read)", params: { mangaId: String(mangaId) } });
+    }
 
     useEffect(() => {
         try {
@@ -137,12 +143,12 @@ export default function LibraryScreen() {
                     <View key={item.id} className="w-[48%] mb-6">
                         <Pressable
                             onPress={() => {
-                                alert(`Pressed ${item.title}`);
+                                handleMangaPress(item.id);
                             }}
                         >
                             <View className="relative bg-white border border-gray-300 rounded-sm overflow-hidden shadow-sm">
                                 <View style={{ filter: "grayscale(96%)" }} className="relative bg-black">
-                                    <Image source={{ uri: item.image }} className="w-full h-56 resize-cover opacity-80" />
+                                    <Image source={{ uri: item.image }} className="w-full h-72 resize-cover opacity-80" />
                                 </View>
                                 <View className="absolute right-2 top-2 w-7 h-6 bg-white/90 border border-gray-400 p-1 rounded-sm">
                                     <Feather name="check" size={12} color="black" />
