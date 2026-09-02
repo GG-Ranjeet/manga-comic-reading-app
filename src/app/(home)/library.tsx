@@ -1,4 +1,4 @@
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { use, useEffect, useState } from "react";
 import { View, Image, Text, ScrollView, TouchableOpacity, Pressable } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
@@ -6,13 +6,14 @@ import { Directory, Paths } from "expo-file-system";
 // import { unzip } from "../../utils/zipper";
 import { unzip } from "react-native-zip-archive";
 import { isDirectoryExists, deleteDirectory, hell, deleteFile } from "@/utils/zipper";
-import { getAllManga, saveManga } from "@/db/database";
+import { deleteManga, getAllManga, saveManga } from "@/db/database";
 import { router } from "expo-router";
 
 export default function LibraryScreen() {
     const [activeTab, setActiveTab] = useState("RECENT");
     const [importing, setImporting] = useState(false);
     const [mangaList, setMangaList] = useState(getAllManga());
+    const [refresh, setRefresh] = useState(false);
 
     const handleUpload = async () => {
         setImporting(true);
@@ -81,26 +82,38 @@ export default function LibraryScreen() {
                     return Number(match[1]);
                 })
                 .filter((num): num is number => num !== null);
-                
+
             const pageCount = pageNumbers.length > 0 ? Math.max(...pageNumbers) : 0;
 
             saveManga(filename, path, coverImagePath, 0, detectedExtension, pageCount);
             // console.log("Unzipped files saved to:", path);
-                await deleteFile(tempZipPath);
+            await deleteFile(tempZipPath);
         } catch (error) {
             console.error("Failed to unzip file:", error);
-        }
-        finally {
+        } finally {
             setImporting(false);
+            toggleRefresh(); 
         }
         // alert(
         //     `Picked file: ${pickedFile.name}\nURI: ${pickedFile.uri}\nSize: ${pickedFile.size} bytes\nType: ${pickedFile.mimeType}\n\n Target directory: ${appDataFolder}`,
         // );
     };
-    
+
     const handleMangaPress = (mangaId: number) => {
         // Navigate to the read screen with the selected mangaId
         router.push({ pathname: "/(read)", params: { mangaId: String(mangaId) } });
+    };
+
+    const toggleRefresh = () => {
+        setRefresh((prev) => !prev);
+    }
+
+    const handleDeleteManga = (mangaId: number) => {
+
+        // Delete the manga from the database and update the state
+        deleteManga(mangaId);
+        setMangaList(getAllManga());
+        toggleRefresh();
     }
 
     useEffect(() => {
@@ -110,7 +123,7 @@ export default function LibraryScreen() {
         } catch (error) {
             console.error("Error fetching manga:", error);
         }
-    }, [activeTab]);
+    }, [refresh]);
 
     return (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
@@ -150,14 +163,23 @@ export default function LibraryScreen() {
                                 <View style={{ filter: "grayscale(96%)" }} className="relative bg-black">
                                     <Image source={{ uri: item.image }} className="w-full h-72 resize-cover opacity-80" />
                                 </View>
-                                <View className="absolute right-2 top-2 w-7 h-6 bg-white/90 border border-gray-400 p-1 rounded-sm">
-                                    <Feather name="check" size={12} color="black" />
+                                <View className="absolute right-2 top-2 flex-col gap-2">
+                                    <View className=" w-7 h-6 bg-white/90 border border-gray-400 p-1 rounded-sm">
+                                        <Feather name="check" size={12} color="black" />
+                                    </View>
+                                    <Pressable
+                                        onPress={() => handleDeleteManga(item.id)}
+                                        className="w-7 h-6 bg-white/90 border border-gray-400 rounded-sm justify-center items-center active:bg-gray-200"
+                                    >
+                                        <MaterialIcons name="delete" size={16} color="black" />
+                                    </Pressable>
                                 </View>
                                 <View className="w-full h-1 bg-gray-200">
                                     <View className="h-full bg-red-600" style={{ width: `${item.progress * 100}%` }} />
                                 </View>
                             </View>
                             <Text className="text-base font-bold text-black mt-2 leading-tight">{item.title}</Text>
+                            <Text className="text-sm text-gray-600">{item.totalPages} pages</Text>
                         </Pressable>
                     </View>
                 ))}

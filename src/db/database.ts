@@ -63,6 +63,11 @@ export const updateMangaProgress = (id: number, progress: number) => {
     );
 };
 
+export const deleteManga = (id: number) => {
+    const database = getDb();
+    database.runSync(`DELETE FROM manga WHERE id = ?`, [id]);
+}
+
 export const getAllManga = (): Manga[] => {
     const database = getDb();
     const result = database.getAllSync<Manga>(`SELECT * FROM manga`);
